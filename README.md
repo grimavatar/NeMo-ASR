@@ -2,7 +2,7 @@
 
 NeMo ASR is a simple Python interface for NVIDIA NeMo ASR models. It transcribes audio and extract timestamps at segment, word, or token level with minimal setup.
 
-NeMo ASR is CPU-friendly, running at 1.5–4× faster than real time.
+NeMo ASR is CPU-friendly, running at 2–3× faster than real time.
 
 ## Install
 
