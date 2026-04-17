@@ -1,1 +1,1 @@
-from .transcribe import NeMoASRModel
+from .transcribe import NeMoASR
