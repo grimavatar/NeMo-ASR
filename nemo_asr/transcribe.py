@@ -1,5 +1,3 @@
-import logging; logging.disable(logging.WARNING)
-
 try:
     import nemo.collections.asr as nemo_asr
 except ImportError:
