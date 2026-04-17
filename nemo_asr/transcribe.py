@@ -4,13 +4,13 @@ try:
     import nemo.collections.asr as nemo_asr
 except ImportError:
     raise ImportError(
-        "Missing required dependency for NeMoASRModel. "
+        "Missing required dependency for NeMo ASR. "
         "Install NeMo with ASR utilities support:\n"
         "  pip install 'nemo_toolkit[asr]==2.7.2'"
     )
 
 
-class NeMoASRModel:
+class NeMoASR:
     def __init__(self, model_name: str = "nvidia/parakeet-tdt-0.6b-v3"):
         self.model = nemo_asr.models.ASRModel.from_pretrained(model_name = model_name)
     
