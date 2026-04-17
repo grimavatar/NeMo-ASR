@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 from .utils.resample import resample
-
+from .utils.utils import make_ref
 
 class NeMoASR:
     def __init__(self, model_name: str = "nvidia/parakeet-tdt-0.6b-v3", sr: int = 16000) -> tuple[list[str], list[list[dict]]]:
@@ -47,3 +47,8 @@ class NeMoASR:
         if sr != self.sr:
             wav = resample(y = wav, orig_sr = int(sr), target_sr = self.sr)
         return wav
+
+    def compare_texts(self, src_text, tgt_text):
+        src_text = make_ref(src_text)
+        tgt_text = make_ref(tgt_text)
+        return src_text == tgt_text
