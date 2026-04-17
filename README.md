@@ -14,11 +14,13 @@ pip install git+https://github.com/grimavatar/NeMo-ASR.git
 
 ```python
 from pathlib import Path
-...
+from nemo_asr import NeMoASR
 
-audio_paths = [str(e) for e in Path(".").absolute().glob("*wav")]
+model = NeMoASR()
 
-...
+audio_paths = list(Path(".").absolute().glob("*wav"))
+
+texts, alignments = model.transcribe(audio_paths)
 ```
 
 ## License
