@@ -48,7 +48,7 @@ class NeMoASR:
             wav = resample(y = wav, orig_sr = int(sr), target_sr = self.sr)
         return wav
 
-    def compare_texts(self, src_text, tgt_text):
+    def compare_texts(self, src_text: str, tgt_text: str) -> bool:
         src_text = make_ref(src_text)
         tgt_text = make_ref(tgt_text)
         return src_text == tgt_text
