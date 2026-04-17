@@ -1,1 +1,4 @@
 nemo_toolkit[asr]==2.7.2
+soundfile
+numpy==1.26.4
+soxr
