@@ -14,10 +14,13 @@ import soundfile as sf
 from .utils.resample import resample
 from .utils.utils import make_ref
 
+
 class NeMoASR:
-    def __init__(self, model_name: str = "nvidia/parakeet-tdt-0.6b-v3", sr: int = 16000) -> tuple[list[str], list[list[dict]]]:
+    def __init__(self, model_name: str = "nvidia/parakeet-tdt-0.6b-v3", sr: int = 16000, batch_size = 32) -> tuple[list[str], list[list[dict]]]:
         self.model = nemo_asr.models.ASRModel.from_pretrained(model_name = model_name)
         self.sr = int(sr)
+        self.batch_size = batch_size
+        self.max_duration_allowed = 24 * 60  # 24 mins in secs
     
     def transcribe(self, audio: str | Path | tuple[np.ndarray, int] | list, alignment_level: str = "word"):
         alignment_level = alignment_level.lower()
@@ -32,7 +35,13 @@ class NeMoASR:
         
         audio = [self.load_audio(e) for e in audio]
 
-        results = self.model.transcribe(audio, timestamps=True, use_lhotse=False, verbose=False)
+        # max_duration = self.get_max_duration(audio)  # max duration in secs
+        # if max_duration <= self.max_duration_allowed:
+        #     self.model.change_attention_model(self_attention_model = "rel_pos_local_attn", att_context_size = [-1, -1])
+        # else:
+        #     self.model.change_attention_model(self_attention_model = "rel_pos_local_attn", att_context_size = [256, 256])
+
+        results = self.model.transcribe(audio, use_lhotse = False, batch_size = self.batch_size, timestamps = True, verbose = False)
         texts = [e.text.strip() for e in results]
         alignments = [e.timestamp[alignment_level] for e in results]
         return texts, alignments
@@ -47,6 +56,19 @@ class NeMoASR:
         if sr != self.sr:
             wav = resample(y = wav, orig_sr = int(sr), target_sr = self.sr)
         return wav
+
+    def get_duration(self, audio: np.ndarray | str | Path | tuple[np.ndarray, int]):
+        """Get duration in secs"""
+        if isinstance(audio, np.ndarray):
+            wav = audio
+        else:
+            wav = self.load_audio(audio)
+        return wav.shape[0] / self.sr
+
+    def get_max_duration(self, audio: list[np.ndarray | str | Path | tuple[np.ndarray, int]]):
+        if not isinstance(audio, list):
+            audio = [audio]
+        return max(self.get_duration(e) for e in audio)
 
     def compare_texts(self, src_text: str, tgt_text: str) -> bool:
         src_text = make_ref(src_text)
