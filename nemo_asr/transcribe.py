@@ -16,13 +16,13 @@ from .utils.utils import make_ref
 
 
 class NeMoASR:
-    def __init__(self, model_name: str = "nvidia/parakeet-tdt-0.6b-v3", sr: int = 16000, batch_size = 32) -> tuple[list[str], list[list[dict]]]:
+    def __init__(self, model_name: str = "nvidia/parakeet-tdt-0.6b-v3", sr: int = 16000, batch_size = 32) -> None:
         self.model = nemo_asr.models.ASRModel.from_pretrained(model_name = model_name)
         self.sr = int(sr)
         self.batch_size = batch_size
         self.max_duration_allowed = 24 * 60  # 24 mins in secs
     
-    def transcribe(self, audio: str | Path | tuple[np.ndarray, int] | list, alignment_level: str = "word"):
+    def transcribe(self, audio: str | Path | tuple[np.ndarray, int] | list, alignment_level: str = "word") -> tuple[list[str], list[list[dict]]]:
         alignment_level = alignment_level.lower()
         assert alignment_level in {"segment", "word", "token"}, \
             "alignment_level must be one of: 'segment', 'word', or 'token'"
@@ -57,7 +57,7 @@ class NeMoASR:
             wav = resample(y = wav, orig_sr = int(sr), target_sr = self.sr)
         return wav
 
-    def get_duration(self, audio: np.ndarray | str | Path | tuple[np.ndarray, int]):
+    def get_duration(self, audio: np.ndarray | str | Path | tuple[np.ndarray, int]) -> float:
         """Get duration in secs"""
         if isinstance(audio, np.ndarray):
             wav = audio
@@ -65,7 +65,7 @@ class NeMoASR:
             wav = self.load_audio(audio)
         return wav.shape[0] / self.sr
 
-    def get_max_duration(self, audio: list[np.ndarray | str | Path | tuple[np.ndarray, int]]):
+    def get_max_duration(self, audio: list[np.ndarray | str | Path | tuple[np.ndarray, int]]) -> float:
         if not isinstance(audio, list):
             audio = [audio]
         return max(self.get_duration(e) for e in audio)
