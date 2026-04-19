@@ -45,12 +45,9 @@ class NeMoASR:
         audio = [self.load_audio(e) for e in audio]
 
         max_duration = self.get_max_duration(audio)  # max duration in secs
-        print(max_duration)
         if max_duration <= self.max_duration_allowed:
-            print("Using global attention")
             self.model.change_attention_model(self_attention_model = self.self_attention_model, att_context_size = self.att_context_size)
         else:
-            print("Using local attention")
             self.model.change_attention_model(self_attention_model = "rel_pos_local_attn", att_context_size = [256, 256])
 
         results = self.model.transcribe(audio, use_lhotse = False, batch_size = self.batch_size, timestamps = True, verbose = False)
