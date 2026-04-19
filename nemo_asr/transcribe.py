@@ -33,6 +33,7 @@ class NeMoASR:
             from nemo.collections.asr.models.rnnt_bpe_models import EncDecRNNTBPEModel
             self.model = EncDecRNNTBPEModel.restore_from(model_path)
         except:
+            print("Fallback to heavy importing...")
             try:
                 from nemo.collections.asr.models import ASRModel
                 self.model = ASRModel.restore_from(model_path)
