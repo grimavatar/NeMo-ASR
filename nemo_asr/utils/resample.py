@@ -34,19 +34,19 @@ def resample(y: np.ndarray, orig_sr: float, target_sr: float, res_type: str = "s
     return np.asarray(y_hat, dtype = y.dtype)  # Match dtypes
 
 
-if __name__ == "__main__":
-    sample_rate = 24000
+# if __name__ == "__main__":
+#     sample_rate = 24000
 
-    input_path = "audio"
+#     input_path = "audio"
 
-    if len(sys.argv) > 1 and sys.argv[1].strip():
-        input_path = sys.argv[1].strip()
+#     if len(sys.argv) > 1 and sys.argv[1].strip():
+#         input_path = sys.argv[1].strip()
 
-    output_path = input_path.rsplit(".", 1)[0] + f".{str(sample_rate)[:2]}k.wav"
+#     output_path = input_path.rsplit(".", 1)[0] + f".{str(sample_rate)[:2]}k.wav"
 
-    wav, sr = sf.read(input_path, dtype = "float32", always_2d = False)
-    # wav, sr = librosa.load(input_path, sr = None, mono = True)
+#     wav, sr = sf.read(input_path, dtype = "float32", always_2d = False)
+#     # wav, sr = librosa.load(input_path, sr = None, mono = True)
 
-    wav_resample = resample(y = wav, orig_sr = int(sr), target_sr = sample_rate)
+#     wav_resample = resample(y = wav, orig_sr = int(sr), target_sr = sample_rate)
 
-    sf.write(output_path, wav_resample, sample_rate)
+#     sf.write(output_path, wav_resample, sample_rate)
