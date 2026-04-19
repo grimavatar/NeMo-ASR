@@ -1,24 +1,16 @@
-try:
-    import nemo.collections.asr as nemo_asr
-except ImportError:
-    raise ImportError(
-        "Missing required dependency for NeMo ASR. "
-        "Install NeMo with ASR utilities support:\n"
-        "  pip install 'nemo_toolkit[asr]==2.7.2'"
-    )
-
 from pathlib import Path
 
 import numpy as np
 import soundfile as sf
+from huggingface_hub import snapshot_download
+
 from .utils.resample import resample
 from .utils.utils import make_ref
 
 
 class NeMoASR:
     def __init__(self, model_name: str = "nvidia/parakeet-tdt-0.6b-v3", batch_size = 32) -> None:
-        self.model = nemo_asr.models.ASRModel.from_pretrained(model_name = model_name)
-        self.model.eval()
+        self._load_model(model_name)
 
         self.batch_size = batch_size
         self.max_duration_allowed = 24 * 60  # 24 mins in secs
@@ -30,7 +22,28 @@ class NeMoASR:
 
         self.self_attention_model = self.cfg.encoder.self_attention_model
         self.att_context_size = self.cfg.encoder.att_context_size
-    
+
+    def _download_model(self, model_name: str, pattern = "*.nemo") -> None:
+        model_path = snapshot_download(model_name, allow_patterns = pattern)
+        return next(Path(model_path).glob(pattern), None)
+
+    def _load_model(self, model_name: str) -> None:
+        model_path = self._download_model(model_name)
+        try:
+            from nemo.collections.asr.models.rnnt_bpe_models import EncDecRNNTBPEModel
+            self.model = EncDecRNNTBPEModel.restore_from(model_path)
+        except:
+            try:
+                from nemo.collections.asr.models import ASRModel
+                self.model = ASRModel.restore_from(model_path)
+            except ImportError:
+                raise ImportError(
+                    "Missing required dependency for NeMo ASR. "
+                    "Install NeMo with ASR utilities support:\n"
+                    "  'pip install nemo_toolkit[asr]==2.7.2'"
+                )
+        self.model.eval()
+
     def transcribe(self, audio: str | Path | tuple[np.ndarray, int] | list, alignment_level: str = "word") -> tuple[list[str], list[list[dict]]]:
         alignment_level = alignment_level.lower()
         assert alignment_level in {"segment", "word", "token"}, \
