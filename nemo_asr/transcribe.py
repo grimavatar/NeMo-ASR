@@ -1,3 +1,12 @@
+try:
+    from nemo.collections.asr.models import ASRModel
+except ImportError:
+    raise ImportError(
+        "Missing required dependency for NeMo ASR. "
+        "Install NeMo with ASR utilities support:\n"
+        "  'pip install nemo_toolkit[asr]==2.7.2'"
+    )
+
 from pathlib import Path
 
 import numpy as np
@@ -29,23 +38,13 @@ class NeMoASR:
 
     def _load_model(self, model_name: str) -> None:
         model_path = self._download_model(model_name)
-        try:
-            from nemo.collections.asr.models.rnnt_bpe_models import EncDecRNNTBPEModel
-            self.model = EncDecRNNTBPEModel.restore_from(model_path)
-        except:
-            print("Fallback to heavy importing...")
-            try:
-                from nemo.collections.asr.models import ASRModel
-                self.model = ASRModel.restore_from(model_path)
-            except ImportError:
-                raise ImportError(
-                    "Missing required dependency for NeMo ASR. "
-                    "Install NeMo with ASR utilities support:\n"
-                    "  'pip install nemo_toolkit[asr]==2.7.2'"
-                )
+        self.model = ASRModel.restore_from(model_path)
         self.model.eval()
 
-    def transcribe(self, audio: str | Path | tuple[np.ndarray, int] | list, alignment_level: str = "word") -> tuple[list[str], list[list[dict]]]:
+    def transcribe(self, audio: str | Path | tuple[np.ndarray, int] | list, alignment_level: str = "word") -> tuple[list[str], list[list[dict]]] | tuple[None, None]:
+        if not audio:
+            return None, None
+
         alignment_level = alignment_level.lower()
         assert alignment_level in {"segment", "word", "token"}, \
             "alignment_level must be one of: 'segment', 'word', or 'token'"
