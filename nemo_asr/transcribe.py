@@ -17,8 +17,11 @@ from .utils.resample import resample
 from .utils.utils import make_ref
 
 
+NEMO_MODEL_ID = "nvidia/parakeet-tdt-0.6b-v3"
+
+
 class NeMoASR:
-    def __init__(self, model_name: str = "nvidia/parakeet-tdt-0.6b-v3", batch_size = 32) -> None:
+    def __init__(self, model_name: str = NEMO_MODEL_ID, batch_size = 32) -> None:
         self._load_model(model_name)
 
         self.batch_size = batch_size
@@ -33,11 +36,11 @@ class NeMoASR:
         self.att_context_size = self.cfg.encoder.att_context_size
 
     @classmethod
-    def _download_model(self, model_name: str, pattern = "*.nemo") -> None:
+    def _download_model(self, model_name: str = NEMO_MODEL_ID, pattern = "*.nemo") -> None:
         model_path = snapshot_download(model_name, allow_patterns = pattern)
         return next(Path(model_path).glob(pattern), None)
 
-    def _load_model(self, model_name: str) -> None:
+    def _load_model(self, model_name: str = NEMO_MODEL_ID) -> None:
         model_path = self._download_model(model_name)
         self.model = ASRModel.restore_from(model_path)
         self.model.eval()
