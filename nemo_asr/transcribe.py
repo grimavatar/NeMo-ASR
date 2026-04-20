@@ -32,6 +32,7 @@ class NeMoASR:
         self.self_attention_model = self.cfg.encoder.self_attention_model
         self.att_context_size = self.cfg.encoder.att_context_size
 
+    @classmethod
     def _download_model(self, model_name: str, pattern = "*.nemo") -> None:
         model_path = snapshot_download(model_name, allow_patterns = pattern)
         return next(Path(model_path).glob(pattern), None)
