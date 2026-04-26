@@ -2,4 +2,4 @@ nemo_toolkit[asr]==2.7.2
 soundfile
 numpy
 soxr
-git+https://github.com/grimavatar/Grim-Modal-Tools.git
+grim-modal-tools @ git+https://github.com/grimavatar/Grim-Modal-Tools.git
