@@ -10,11 +10,10 @@ except ImportError:
 from pathlib import Path
 
 import numpy as np
-import soundfile as sf
 from huggingface_hub import snapshot_download
 
-from .utils.resample import resample
-from .utils.utils import make_ref
+from grim_modal_tools.audio.utils import load_audio, get_duration
+from grim_modal_tools.text.evaluations import compare_texts, align_to_source
 
 
 NEMO_MODEL_ID = "nvidia/parakeet-tdt-0.6b-v3"
@@ -73,30 +72,21 @@ class NeMoASR:
         return texts, alignments
     
     def load_audio(self, audio: str | Path | tuple[np.ndarray, int]) -> np.ndarray:
-        if isinstance(audio, (str, Path)):
-            wav, sr = sf.read(audio, dtype = "float32", always_2d = False)
-        else:
-            wav, sr = audio
-            if not (isinstance(wav, np.ndarray) and isinstance(sr, int)):
-                raise ValueError(f"'audio' must be a str, Path, or tuple of (np.ndarray, int), but got ({type(wav).__name__}, {type(sr).__name__})")
-        if sr != self.sr:
-            wav = resample(y = wav, orig_sr = int(sr), target_sr = self.sr)
-        return wav
+        return load_audio(audio, self.sr)[0]
 
-    def get_duration(self, audio: np.ndarray | str | Path | tuple[np.ndarray, int]) -> float:
+    def get_duration(self, audio: str | Path | np.ndarray | tuple[np.ndarray, int]) -> float:
         """Get duration in secs"""
         if isinstance(audio, np.ndarray):
-            wav = audio
-        else:
-            wav = self.load_audio(audio)
-        return wav.shape[0] / self.sr
+            audio = audio, self.sr
+        return get_duration(audio)
 
-    def get_max_duration(self, audio: list[np.ndarray | str | Path | tuple[np.ndarray, int]]) -> float:
+    def get_max_duration(self, audio: list[str | Path | np.ndarray | tuple[np.ndarray, int]]) -> float:
         if not isinstance(audio, list):
             audio = [audio]
         return max(self.get_duration(e) for e in audio)
 
     def compare_texts(self, src_text: str, tgt_text: str) -> bool:
-        src_text = make_ref(src_text)
-        tgt_text = make_ref(tgt_text)
-        return src_text == tgt_text
+        return compare_texts(src_text, tgt_text)
+
+    def align_to_source(src_text: str, alignment: list[dict]) -> list[dict] | None:
+        return align_to_source(src_text, alignment)
