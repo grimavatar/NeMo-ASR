@@ -68,7 +68,8 @@ class NeMoASR:
 
         results = self.model.transcribe(audio, use_lhotse = False, batch_size = self.batch_size, timestamps = True, verbose = False)
         texts = [e.text.strip() for e in results]
-        alignments = [e.timestamp[alignment_level] for e in results]
+        alignments = [self.sanitize_alignment(e.timestamp, alignment_level) for e in results]
+        
         return texts, alignments
     
     def load_audio(self, audio: str | Path | tuple[np.ndarray, int]) -> np.ndarray:
@@ -84,6 +85,15 @@ class NeMoASR:
         if not isinstance(audio, list):
             audio = [audio]
         return max(self.get_duration(e) for e in audio)
+
+    def sanitize_alignment(self, timestamp: dict[list], alignment_level: str) -> list[list[dict]]:
+        alignment = timestamp[alignment_level]
+        for part in alignment:
+            if part.get("start_offset"):
+                part.pop("start_offset")
+            if part.get("end_offset"):
+                part.pop("end_offset")
+        return alignment
 
     def compare_texts(self, src_text: str, tgt_text: str) -> bool:
         return compare_texts(src_text, tgt_text)
