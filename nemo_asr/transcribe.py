@@ -88,5 +88,5 @@ class NeMoASR:
     def compare_texts(self, src_text: str, tgt_text: str) -> bool:
         return compare_texts(src_text, tgt_text)
 
-    def align_to_source(src_text: str, alignment: list[dict]) -> list[dict] | None:
+    def align_to_source(self, src_text: str, alignment: list[dict]) -> list[dict] | None:
         return align_to_source(src_text, alignment)
