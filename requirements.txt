@@ -1,4 +1,4 @@
-nemo_toolkit[asr]==2.7.3
+nemo_toolkit[asr] @ git+https://github.com/NVIDIA/NeMo.git@4e7d18d98fc7c0772dd011fd96b31cf587a0460a
 soundfile
 numpy
 soxr
