@@ -4,7 +4,7 @@ except ImportError:
     raise ImportError(
         "Missing required dependency for NeMo ASR. "
         "Install NeMo with ASR utilities support:\n"
-        "  'pip install nemo_toolkit[asr]==2.7.2'"
+        "  'pip install nemo_toolkit[asr]>=2.7.2'"
     )
 
 from pathlib import Path
