@@ -109,6 +109,10 @@ class NeMoASR:
                 part.pop("start_offset")
             if part.get("end_offset"):
                 part.pop("end_offset")
+            if part.get("start"):
+                part["start"] = float(part["start"])
+            if part.get("end"):
+                part["end"] = float(part["end"])
         return alignment
 
     def compare_texts(self, src_text: str, tgt_text: str) -> bool:
