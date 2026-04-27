@@ -10,6 +10,7 @@ except ImportError:
 from pathlib import Path
 
 import numpy as np
+from omegaconf import open_dict
 from huggingface_hub import snapshot_download
 
 from grim_modal_tools.audio.utils import load_audio, get_duration
@@ -20,7 +21,7 @@ NEMO_MODEL_ID = "nvidia/parakeet-tdt-0.6b-v3"
 
 
 class NeMoASR:
-    def __init__(self, model_name: str = NEMO_MODEL_ID, batch_size = 32) -> None:
+    def __init__(self, model_name: str = NEMO_MODEL_ID, batch_size = 32, beam_size: int = 1) -> None:
         self._load_model(model_name)
 
         self.batch_size = batch_size
@@ -34,6 +35,9 @@ class NeMoASR:
         self.self_attention_model = self.cfg.encoder.self_attention_model
         self.att_context_size = self.cfg.encoder.att_context_size
 
+        if beam_size > 1:
+            self._set_beam_decoding(beam_size)
+
     @classmethod
     def _download_model(self, model_name: str = NEMO_MODEL_ID, pattern = "*.nemo") -> None:
         model_path = snapshot_download(model_name, allow_patterns = pattern)
@@ -43,6 +47,17 @@ class NeMoASR:
         model_path = self._download_model(model_name)
         self.model = ASRModel.restore_from(model_path)
         self.model.eval()
+
+    def _set_beam_decoding(self, beam_size: int) -> None:
+        cfg = self.cfg.decoding
+        with open_dict(cfg):
+            cfg.strategy = "malsd_batch"
+            cfg.compute_timestamps = True
+            cfg.preserve_alignments = True
+            cfg.beam.beam_size = beam_size
+            cfg.beam.search_type = "malsd_batch"
+            cfg.beam.return_best_hypothesis = True
+        self.model.change_decoding_strategy(cfg)
 
     def transcribe(self, audio: str | Path | tuple[np.ndarray, int] | list, alignment_level: str = "word") -> tuple[list[str], list[list[dict]]] | tuple[None, None]:
         if not audio:
