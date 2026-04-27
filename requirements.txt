@@ -1,4 +1,4 @@
-nemo_toolkit[asr]==2.7.2
+nemo_toolkit[asr]==2.7.3
 soundfile
 numpy
 soxr
