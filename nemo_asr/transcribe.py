@@ -48,6 +48,7 @@ class NeMoASR:
         self.model = ASRModel.restore_from(model_path)
         self.model.eval()
 
+    # https://github.com/NVIDIA-NeMo/NeMo/pull/15411
     def _set_beam_decoding(self, beam_size: int) -> None:
         cfg = self.cfg.decoding
         with open_dict(cfg):
