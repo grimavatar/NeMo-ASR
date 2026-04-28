@@ -21,7 +21,7 @@ NEMO_MODEL_ID = "nvidia/parakeet-tdt-0.6b-v3"
 
 
 class NeMoASR:
-    def __init__(self, model_name: str = NEMO_MODEL_ID, batch_size = 32, beam_size: int = 1) -> None:
+    def __init__(self, model_name: str = NEMO_MODEL_ID, batch_size = 32, beam_size: int = 10) -> None:
         self._load_model(model_name)
 
         self.batch_size = batch_size
